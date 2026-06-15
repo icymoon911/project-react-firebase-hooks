@@ -2,6 +2,7 @@ import {
   DocumentData,
   DocumentSnapshot,
   FirestoreError,
+  QueryDocumentSnapshot,
   QuerySnapshot,
   SnapshotListenOptions,
   SnapshotOptions,
@@ -41,6 +42,31 @@ export type CollectionDataHook<T = DocumentData> = [
 export type CollectionDataOnceHook<T = DocumentData> = [
   ...CollectionDataHook<T>,
   () => Promise<void>
+];
+
+export type PaginatedOptions<T> = Options &
+  IDOptions<T> & {
+    pageSize: number;
+  };
+
+export type PaginatedInitialValueOptions<T> = PaginatedOptions<T> &
+  InitialValueOptions<T[]>;
+
+export type PaginatedCollectionDataHook<T = DocumentData> = [
+  /** The accumulated data array across all loaded pages */
+  T[] | undefined,
+  /** True while the first page is loading */
+  boolean,
+  /** The most recent error from any page load */
+  FirestoreError | undefined,
+  /** Load the next page of results */
+  () => void,
+  /** Whether more pages are available (true if the last page was full) */
+  boolean,
+  /** True while a "load more" request is in flight */
+  boolean,
+  /** The document snapshots across all loaded pages */
+  QueryDocumentSnapshot<T>[]
 ];
 
 export type DocumentHook<T = DocumentData> = LoadingHook<
