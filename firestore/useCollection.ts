@@ -4,7 +4,6 @@ import {
   getDocs,
   getDocsFromCache,
   getDocsFromServer,
-  onSnapshot,
   Query,
   QuerySnapshot,
   SnapshotOptions,
@@ -12,7 +11,7 @@ import {
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLoadingValue } from '../util';
 import useIsMounted from '../util/useIsMounted';
-import { useIsFirestoreQueryEqual } from './helpers';
+import { useIsFirestoreQueryEqual, useSubscription } from './helpers';
 import {
   CollectionDataHook,
   CollectionDataOnceHook,
@@ -30,30 +29,11 @@ export const useCollection = <T = DocumentData>(
   query?: Query<T> | null,
   options?: Options
 ): CollectionHook<T> => {
-  const { error, loading, reset, setError, setValue, value } = useLoadingValue<
-    QuerySnapshot<T>,
-    FirestoreError
-  >();
-  const ref = useIsFirestoreQueryEqual<Query<T>>(query, reset);
-
-  useEffect(() => {
-    if (!ref.current) {
-      setValue(undefined);
-      return;
-    }
-    const unsubscribe = options?.snapshotListenOptions
-      ? onSnapshot(
-          ref.current,
-          options.snapshotListenOptions,
-          setValue,
-          setError
-        )
-      : onSnapshot(ref.current, setValue, setError);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [ref.current]);
+  const { value, loading, error } = useSubscription<Query<T>, QuerySnapshot<T>>(
+    query ?? null,
+    options?.snapshotListenOptions,
+    useIsFirestoreQueryEqual
+  );
 
   return [value as QuerySnapshot<T>, loading, error];
 };

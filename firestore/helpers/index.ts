@@ -42,3 +42,5 @@ export const useIsFirestoreQueryEqual = <T extends Query<any>>(
 ): RefHook<T | null | undefined> => {
   return useComparatorRef(value, isQueryEqual, onChange);
 };
+
+export { useSubscription } from './useSubscription';

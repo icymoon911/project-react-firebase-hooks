@@ -7,7 +7,7 @@ import {
   updateProfile as fbUpdateProfile,
   verifyBeforeUpdateEmail as fbVerifyBeforeUpdateEmail,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 
 type Profile = {
   displayName?: string | null;
@@ -33,119 +33,75 @@ export type VerifyBeforeUpdateEmailHook = UpdateUserHook<
 >;
 
 export const useUpdateEmail = (auth: Auth): UpdateEmailHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const updateEmail = useCallback(
+  const { action, loading, error } = useAction<[string], boolean, AuthError>(
     async (email: string) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        if (auth.currentUser) {
-          await fbUpdateEmail(auth.currentUser, email);
-          return true;
-        } else {
-          throw new Error('No user is logged in');
-        }
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
+      if (auth.currentUser) {
+        await fbUpdateEmail(auth.currentUser, email);
+        return true;
+      } else {
+        throw new Error('No user is logged in');
       }
     },
     [auth]
   );
 
-  return [updateEmail, loading, error];
+  return [action, loading, error];
 };
 
 export const useUpdatePassword = (auth: Auth): UpdatePasswordHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const updatePassword = useCallback(
+  const { action, loading, error } = useAction<[string], boolean, AuthError>(
     async (password: string) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        if (auth.currentUser) {
-          await fbUpdatePassword(auth.currentUser, password);
-          return true;
-        } else {
-          throw new Error('No user is logged in');
-        }
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
+      if (auth.currentUser) {
+        await fbUpdatePassword(auth.currentUser, password);
+        return true;
+      } else {
+        throw new Error('No user is logged in');
       }
     },
     [auth]
   );
 
-  return [updatePassword, loading, error];
+  return [action, loading, error];
 };
 
 export const useUpdateProfile = (auth: Auth): UpdateProfileHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const updateProfile = useCallback(
+  const { action, loading, error } = useAction<[Profile], boolean, AuthError>(
     async (profile: Profile) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        if (auth.currentUser) {
-          await fbUpdateProfile(auth.currentUser, profile);
-          return true;
-        } else {
-          throw new Error('No user is logged in');
-        }
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
+      if (auth.currentUser) {
+        await fbUpdateProfile(auth.currentUser, profile);
+        return true;
+      } else {
+        throw new Error('No user is logged in');
       }
     },
     [auth]
   );
 
-  return [updateProfile, loading, error];
+  return [action, loading, error];
 };
 
 export const useVerifyBeforeUpdateEmail = (
   auth: Auth
 ): VerifyBeforeUpdateEmailHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const verifyBeforeUpdateEmail = useCallback(
+  const { action, loading, error } = useAction<
+    [string, ActionCodeSettings | null],
+    boolean,
+    AuthError
+  >(
     async (email: string, actionCodeSettings: ActionCodeSettings | null) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        if (auth.currentUser) {
-          await fbVerifyBeforeUpdateEmail(
-            auth.currentUser,
-            email,
-            actionCodeSettings
-          );
-          return true;
-        } else {
-          throw new Error('No user is logged in');
-        }
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
+      if (auth.currentUser) {
+        await fbVerifyBeforeUpdateEmail(
+          auth.currentUser,
+          email,
+          actionCodeSettings
+        );
+        return true;
+      } else {
+        throw new Error('No user is logged in');
       }
     },
     [auth]
   );
 
-  return [verifyBeforeUpdateEmail, loading, error];
+  return [action, loading, error];
 };

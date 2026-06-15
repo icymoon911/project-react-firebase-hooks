@@ -6,13 +6,12 @@ import {
   getDoc,
   getDocFromCache,
   getDocFromServer,
-  onSnapshot,
   SnapshotOptions,
 } from 'firebase/firestore';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLoadingValue } from '../util';
 import useIsMounted from '../util/useIsMounted';
-import { useIsFirestoreRefEqual } from './helpers';
+import { useIsFirestoreRefEqual, useSubscription } from './helpers';
 import {
   DataOptions,
   DocumentDataHook,
@@ -30,30 +29,10 @@ export const useDocument = <T = DocumentData>(
   docRef?: DocumentReference<T> | null,
   options?: Options
 ): DocumentHook<T> => {
-  const { error, loading, reset, setError, setValue, value } = useLoadingValue<
-    DocumentSnapshot<T>,
-    FirestoreError
-  >();
-  const ref = useIsFirestoreRefEqual<DocumentReference<T>>(docRef, reset);
-
-  useEffect(() => {
-    if (!ref.current) {
-      setValue(undefined);
-      return;
-    }
-    const unsubscribe = options?.snapshotListenOptions
-      ? onSnapshot(
-          ref.current,
-          options.snapshotListenOptions,
-          setValue,
-          setError
-        )
-      : onSnapshot(ref.current, setValue, setError);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [ref.current]);
+  const { value, loading, error } = useSubscription<
+    DocumentReference<T>,
+    DocumentSnapshot<T>
+  >(docRef ?? null, options?.snapshotListenOptions, useIsFirestoreRefEqual);
 
   return [value as DocumentSnapshot<T>, loading, error];
 };

@@ -4,31 +4,20 @@ import {
   signInWithEmailLink as firebaseSignInWithEmailLink,
   UserCredential,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 import { SignInWithEmailLinkHook } from './types';
 
 export default (auth: Auth): SignInWithEmailLinkHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loggedInUser, setLoggedInUser] = useState<UserCredential>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const signInWithEmailLink = useCallback(
+  const { action, result, loading, error } = useAction<
+    [string, string?],
+    UserCredential,
+    AuthError
+  >(
     async (email: string, emailLink?: string) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        const user = await firebaseSignInWithEmailLink(auth, email, emailLink);
-        setLoggedInUser(user);
-
-        return user;
-      } catch (err) {
-        setError(err as AuthError);
-      } finally {
-        setLoading(false);
-      }
+      return await firebaseSignInWithEmailLink(auth, email, emailLink);
     },
     [auth]
   );
 
-  return [signInWithEmailLink, loggedInUser, loading, error];
+  return [action, result, loading, error];
 };
