@@ -4,7 +4,6 @@ import {
   getDocs,
   getDocsFromCache,
   getDocsFromServer,
-  onSnapshot,
   Query,
   QuerySnapshot,
   SnapshotOptions,
@@ -13,6 +12,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useLoadingValue } from '../util';
 import useIsMounted from '../util/useIsMounted';
 import { useIsFirestoreQueryEqual } from './helpers';
+import useFirestoreSubscription from './useFirestoreSubscription';
 import {
   CollectionDataHook,
   CollectionDataOnceHook,
@@ -36,24 +36,12 @@ export const useCollection = <T = DocumentData>(
   >();
   const ref = useIsFirestoreQueryEqual<Query<T>>(query, reset);
 
-  useEffect(() => {
-    if (!ref.current) {
-      setValue(undefined);
-      return;
-    }
-    const unsubscribe = options?.snapshotListenOptions
-      ? onSnapshot(
-          ref.current,
-          options.snapshotListenOptions,
-          setValue,
-          setError
-        )
-      : onSnapshot(ref.current, setValue, setError);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [ref.current]);
+  useFirestoreSubscription<Query<T>>(
+    ref.current,
+    setValue,
+    setError,
+    options?.snapshotListenOptions
+  );
 
   return [value as QuerySnapshot<T>, loading, error];
 };

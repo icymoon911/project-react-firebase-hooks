@@ -2,37 +2,20 @@ import {
   Auth,
   AuthError,
   signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
-  UserCredential,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 import { EmailAndPasswordActionHook } from './types';
 
 export default (auth: Auth): EmailAndPasswordActionHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loggedInUser, setLoggedInUser] = useState<UserCredential>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const signInWithEmailAndPassword = useCallback(
-    async (email: string, password: string) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        const user = await firebaseSignInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        setLoggedInUser(user);
-
-        return user;
-      } catch (err) {
-        setError(err as AuthError);
-      } finally {
-        setLoading(false);
-      }
-    },
+  const [signInWithEmailAndPassword, user, loading, error] = useAction<
+    [string, string],
+    Awaited<ReturnType<typeof firebaseSignInWithEmailAndPassword>>,
+    AuthError
+  >(
+    (email: string, password: string) =>
+      firebaseSignInWithEmailAndPassword(auth, email, password),
     [auth]
   );
 
-  return [signInWithEmailAndPassword, loggedInUser, loading, error];
+  return [signInWithEmailAndPassword, user, loading, error];
 };

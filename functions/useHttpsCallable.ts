@@ -3,48 +3,37 @@ import {
   httpsCallable,
   HttpsCallableResult,
 } from 'firebase/functions';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 
 export type HttpsCallableHook<
   RequestData = unknown,
   ResponseData = unknown
-> = Readonly<
-  [
-    (
-      data?: RequestData
-    ) => Promise<HttpsCallableResult<ResponseData> | undefined>,
-    boolean,
-    Error | undefined
-  ]
->;
+> = [
+  (
+    data?: RequestData
+  ) => Promise<HttpsCallableResult<ResponseData> | undefined>,
+  boolean,
+  Error | undefined
+];
 
 export default <RequestData = unknown, ResponseData = unknown>(
   functions: Functions,
   name: string
 ): HttpsCallableHook<RequestData, ResponseData> => {
-  const [error, setError] = useState<Error>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const callCallable = useCallback(
-    async (
-      data?: RequestData
-    ): Promise<HttpsCallableResult<ResponseData> | undefined> => {
+  const [callCallable, , loading, error] = useAction<
+    [RequestData | undefined],
+    HttpsCallableResult<ResponseData>,
+    Error
+  >(
+    async (data?: RequestData) => {
       const callable = httpsCallable<RequestData, ResponseData>(
         functions,
         name
       );
-      setLoading(true);
-      setError(undefined);
-      try {
-        return await callable(data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
+      return callable(data);
     },
     [functions, name]
   );
 
-  return [callCallable, loading, error] as const;
+  return [callCallable, loading, error];
 };

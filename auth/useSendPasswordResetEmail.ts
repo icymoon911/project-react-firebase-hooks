@@ -4,7 +4,7 @@ import {
   AuthError,
   sendPasswordResetEmail as fbSendPasswordResetEmail,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 
 export type SendPasswordResetEmailHook = [
   (email: string, actionCodeSettings?: ActionCodeSettings) => Promise<boolean>,
@@ -13,25 +13,24 @@ export type SendPasswordResetEmailHook = [
 ];
 
 export default (auth: Auth): SendPasswordResetEmailHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const sendPasswordResetEmail = useCallback(
+  const [sendPasswordResetEmail, , loading, error] = useAction<
+    [string, ActionCodeSettings | undefined],
+    boolean,
+    AuthError
+  >(
     async (email: string, actionCodeSettings?: ActionCodeSettings) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        await fbSendPasswordResetEmail(auth, email, actionCodeSettings);
-        return true;
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
-      }
+      await fbSendPasswordResetEmail(auth, email, actionCodeSettings);
+      return true;
     },
     [auth]
   );
 
-  return [sendPasswordResetEmail, loading, error];
+  return [
+    sendPasswordResetEmail as (
+      email: string,
+      actionCodeSettings?: ActionCodeSettings
+    ) => Promise<boolean>,
+    loading,
+    error,
+  ];
 };

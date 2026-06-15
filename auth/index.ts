@@ -2,6 +2,7 @@ export {
   EmailAndPasswordActionHook,
   SignInWithEmailLinkHook,
   SignInWithPopupHook,
+  SimpleActionHook,
 } from './types';
 export { AuthStateHook, default as useAuthState } from './useAuthState';
 export { default as useCreateUserWithEmailAndPassword } from './useCreateUserWithEmailAndPassword';

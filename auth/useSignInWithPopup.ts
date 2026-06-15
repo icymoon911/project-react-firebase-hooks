@@ -11,7 +11,8 @@ import {
   TwitterAuthProvider,
   UserCredential,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
+import { useAction } from '../util';
 import { SignInWithPopupHook } from './types';
 
 export const useSignInWithApple = (auth: Auth): SignInWithPopupHook => {
@@ -121,28 +122,17 @@ const useSignInWithPopup = (
     customOAuthParameters?: CustomParameters
   ) => AuthProvider
 ): SignInWithPopupHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loggedInUser, setLoggedInUser] = useState<UserCredential>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const doSignInWithPopup = useCallback(
+  const [doSignInWithPopup, user, loading, error] = useAction<
+    [string[] | undefined, CustomParameters | undefined],
+    UserCredential,
+    AuthError
+  >(
     async (scopes?: string[], customOAuthParameters?: CustomParameters) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        const provider = createProvider(scopes, customOAuthParameters);
-        const user = await signInWithPopup(auth, provider);
-        setLoggedInUser(user);
-
-        return user;
-      } catch (err) {
-        setError(err as AuthError);
-      } finally {
-        setLoading(false);
-      }
+      const provider = createProvider(scopes, customOAuthParameters);
+      return signInWithPopup(auth, provider);
     },
     [auth, createProvider]
   );
 
-  return [doSignInWithPopup, loggedInUser, loading, error];
+  return [doSignInWithPopup, user, loading, error];
 };

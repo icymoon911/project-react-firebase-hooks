@@ -4,7 +4,7 @@ import {
   AuthError,
   sendSignInLinkToEmail as fbSendSignInLinkToEmail,
 } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useAction } from '../util';
 
 export type SendSignInLinkToEmailHook = [
   (email: string, actionCodeSettings: ActionCodeSettings) => Promise<boolean>,
@@ -13,25 +13,24 @@ export type SendSignInLinkToEmailHook = [
 ];
 
 export default (auth: Auth): SendSignInLinkToEmailHook => {
-  const [error, setError] = useState<AuthError>();
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const sendSignInLinkToEmail = useCallback(
+  const [sendSignInLinkToEmail, , loading, error] = useAction<
+    [string, ActionCodeSettings],
+    boolean,
+    AuthError
+  >(
     async (email: string, actionCodeSettings: ActionCodeSettings) => {
-      setLoading(true);
-      setError(undefined);
-      try {
-        await fbSendSignInLinkToEmail(auth, email, actionCodeSettings);
-        return true;
-      } catch (err) {
-        setError(err as AuthError);
-        return false;
-      } finally {
-        setLoading(false);
-      }
+      await fbSendSignInLinkToEmail(auth, email, actionCodeSettings);
+      return true;
     },
     [auth]
   );
 
-  return [sendSignInLinkToEmail, loading, error];
+  return [
+    sendSignInLinkToEmail as (
+      email: string,
+      actionCodeSettings: ActionCodeSettings
+    ) => Promise<boolean>,
+    loading,
+    error,
+  ];
 };
