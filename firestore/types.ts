@@ -59,3 +59,19 @@ export type DocumentDataOnceHook<T = DocumentData> = [
   ...DocumentDataHook<T>,
   () => Promise<void>
 ];
+
+export type PaginatedOptions = Options & {
+  pageSize: number;
+};
+export type PaginatedDataOptions<T> = PaginatedOptions &
+  IDOptions<T> &
+  InitialValueOptions<T[]>;
+
+export type PaginatedCollectionDataHook<T = DocumentData> = [
+  data: T[] | undefined,
+  loading: boolean,
+  error: FirestoreError | undefined,
+  loadMore: () => void,
+  hasMore: boolean,
+  snapshot: QuerySnapshot<T> | undefined
+];

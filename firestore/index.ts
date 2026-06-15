@@ -4,6 +4,7 @@ export {
   useCollectionData,
   useCollectionDataOnce,
 } from './useCollection';
+export { usePaginatedCollectionData } from './usePaginatedCollection';
 export {
   useDocument,
   useDocumentData,
@@ -15,4 +16,7 @@ export {
   CollectionDataHook,
   DocumentHook,
   DocumentDataHook,
+  PaginatedCollectionDataHook,
+  PaginatedDataOptions,
+  PaginatedOptions,
 } from './types';
