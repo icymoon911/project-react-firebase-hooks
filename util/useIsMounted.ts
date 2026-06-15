@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { RefHook } from './refHooks';
 
-export default () => {
-  const [isMounted, setIsMounted] = useState(true);
+export default (): RefHook<boolean> => {
+  const isMounted = useRef<boolean>(true);
   useEffect(() => {
     return () => {
-      setIsMounted(false);
+      isMounted.current = false;
     };
   }, []);
   return isMounted;

@@ -79,11 +79,11 @@ export const useCollectionOnce = <T = DocumentData>(
 
       try {
         const result = await get(query);
-        if (isMounted) {
+        if (isMounted.current) {
           setValue(result);
         }
       } catch (error) {
-        if (isMounted) {
+        if (isMounted.current) {
           setError(error as FirestoreError);
         }
       }

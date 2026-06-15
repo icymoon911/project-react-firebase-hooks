@@ -37,7 +37,6 @@ const reducer = <E>() => (
         ...state,
         error: action.error,
         loading: false,
-        value: undefined,
       };
     case 'reset':
       return defaultState(action.defaultValue);
