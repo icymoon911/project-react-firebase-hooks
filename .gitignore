@@ -1,20 +1,37 @@
-# NPM / Yarn
-.rpt2_cache
-node_modules
-npm-debug.log
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+*.whl
 
-# Rollup build output
-**/dist
-**/*.d.ts
+# Go
+vendor/
+go.sum
 
-# OS files
+# Node / npm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-
-# Testing output
-.nyc_output
-coverage
-
-#test files
-/example
-fire*.log
-/.idea/
+Thumbs.db
